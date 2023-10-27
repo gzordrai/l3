@@ -1,0 +1,79 @@
+\documentclass{article}
+\usepackage{listings}
+
+\begin{document}
+    Haskell est uniquement basé sur des expressions
+    On ne controle pas le flow d'execution
+
+    \begin{lstlisting}
+        f n = x^2 + 2 * x * y - y^2
+            where
+                x = n^2
+                y = 3 * n
+
+        f' n = let
+                x = n^2
+                y = 3 * n
+            in n^2 + 2 * x * y + y^2
+    \end{lstlisting}
+
+    Le typage:
+        \begin{itemize}
+            \item unit ()
+                \begin{itemize}
+                    \item Type qui contient qu'une seule valeu
+                    \item Calculer la valeur de () c'est toujours calculer ()
+                    \item Equivalent de void
+                    \item Tuple de dimension 0
+                \end{itemize}
+            \item bool
+                \begin{itemize}
+                    \item True ou False
+                    \item &&
+                    \item ||
+                    \item not
+                \end{itemize}
+
+        \end{itemize}
+
+    Les gardes:
+    \begin{lstlisting}
+        h n = if n < 0 then 0
+            else if n == 0
+            then 1
+            else n - 1
+
+        h' n =  | n < 0 = 0
+                | n == 0 = 1
+                | otherwise = n - 1
+    \end{lstlisting}
+
+    L'ordre des gardes (|) est prit en compte
+
+    Filtrage de motif:
+    \begin{lstlisting}
+        condMinus _ 0 = 0
+        condMinus True n    | n < 0 = -n
+                            | n > 0 = n
+        condMinus False n   | n < 0 = n
+    \end{lstlisting}
+
+    L'opérateur ->
+    \begin{itemize}
+        \item Une fonction a un type domaine a et un type image b
+        \item le type d'une telle fonction se note a -> b
+        \item Il est d'usage de donner son type a une fonction que l'on déclare
+        \begin{lstlisting}
+            double :: Int -> Int
+        \end{lstlisting}
+    \end{itemize}
+
+    Quel est le type de \f g e -> f e (g e)
+    \begin{lstlisting}
+        \f g e -> f e (g e) :: (c -> b -> a) -> (c -> b) -> c -> a
+    \end{lstlisting}
+    f => operation
+    e => environement d'un code (bloque mémoire)
+    g => un code 
+    Cette lamda fonction est beaucoup utilisé pour la compilation pour appliqué une fonction a un bout de code avec le même environement que le code
+\end{document}

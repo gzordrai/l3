@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{listings}
+
+\title{Programmation fonctionelle}
+\begin{document}
+    La programmation fonctionnelle est un paradigme de programmation (comme le paradigme objet) où les fonctions jouent un rôle central:
+
+    \begin{itemize}
+        \item dans la modélisation
+        \item dans le non duplication de code
+        \item dans le contrôle de l'éxécution des programmes
+    \end{itemize}
+
+    Historiquement les premiers modèles de calcul ont été basés sur les ? tion de fonction mathématique: fonction primitives récursives, fonction générales récursives,
+    lambda-calcul (A Church)
+
+    Les premiers langages de programmation se sont inspirés des travaux de Church (1950) par exemple est un langage de fonctionnel.
+
+    En général  ce que l'on appelle fonction de dans un langage de programmation difère de la notion de fonction mathématique car 2 appels identiques à la même fonction
+    peut donner des résultats différents
+
+    Exemple en python:
+    \begin{lstlisting}[language=Python]
+        x = 1
+
+        def plus_x(k):
+            global x
+            x += 1
+
+        return k + x
+    \end{lstlisting}
+
+    Ici plus\_x(0) renvoie 2 au premier apppel et 3 au second.
+
+    Dans les langages fonctionneles les fonctions diffèrent souvent de la notion de fonction mathématiques
+    \begin{itemize}
+        \item Ocaml
+        \item Lisp
+        \item Schimc
+        \item Erlang
+        \item etc.
+    \end{itemize}
+
+    Nous allons étudier le langage Haskell qui:
+    \begin{itemize}
+        \item est fonctionelle pur c'est à dire les fonctions sont très "proches" des fonctions mathématiquesx = 1
+        \item est parresseux ce qui implique que l'on peut multiplier des ? potentiellement infinies
+        \item difficile à apprendre
+        \item syntaxe particulièrement élégante
+        \item est fortement typé: donne des garanties à l'éxécution
+
+        \begin{itemize}
+            \item permet des fortes optimisation de code
+            \item rejette les programmes mal construits
+        \end{itemize}
+
+        \item est à la source de nb idées que st dans des langages récents: clotures, monades, optimisation
+    \end{itemize}
+
+    Objectif de l'UE: écrire des programmes correct, clair, concis, réutilisable en Haskellet maitriser les concepts sous ?
+
+    Exezmples de programmes Haskell:
+    Faire la somme des n 1er nombre
+
+    \begin{lstlisting}[language=Haskell]
+        somme n = sum [1 .. n]
+    \end{lstlisting}
+
+    somme   = nom de la fonction
+    n       = argument de la fonction
+    sum     = fonction librairie standard qui fait la somme des arguments des éléments de la liste d'argument
+    ..      = fonction d'énumération qui énumère tous les éléments entre ses 2 args
+
+    Faire un quick sort
+    \begin{lstlisting}[language=Haskell]
+        qsrot [] = []
+        qsort (x : xs) = qsort petits ++ [x] ++ qsort grands
+            where
+                petits = [y | y <- xs, y <= x]
+                grands = [y | y <- xs, x < y]
+    \end{lstlisting}
+
+    Faire la somme des n 1er nombre en récursif
+    \begin{lstlisting}
+        sommeRec n = if n == 0
+                    then 0
+                    else n + sommeRec (n - 1)
+    \end{lstlisting}
+\end{document}
