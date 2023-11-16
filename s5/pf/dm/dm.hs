@@ -46,6 +46,7 @@ sortF = sortBy compareF
 initH :: [Freq a] -> [Freq (ArbreH a)]
 initH [] = []
 initH ((F v p) : fs) = F (Feuille v) p : initH fs
+-- initH fs = map (\(F v f) -> F (Feuille v) f) fs
 
 -- Q6 13m
 etapeH :: [Freq (ArbreH a)] -> [Freq (ArbreH a)]
