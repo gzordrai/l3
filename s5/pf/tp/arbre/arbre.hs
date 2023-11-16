@@ -1,5 +1,5 @@
-import Test.QuickCheck
 import Data.Maybe (isJust)
+import Test.QuickCheck
 
 -- Q1
 data Arbre c v = Feuille | Noeud c v (Arbre c v) (Arbre c v)
@@ -52,7 +52,7 @@ prop_taillePeigne :: [(c, v)] -> Bool
 prop_taillePeigne xs = length xs * 2 + 1 == taille (peigneGauche xs)
 
 -- prop_mapArbre :: [(c, v)] -> Bool
--- prop_mapArbre xs = 
+-- prop_mapArbre xs =
 
 prop_dimensionPeigne :: [(c, v)] -> Bool
 prop_dimensionPeigne xs = length xs == dimension (\x y -> 1 + max x y) 0 (peigneGauche xs)
@@ -69,6 +69,7 @@ estParfait' Feuille = True
 estParfait' a = isJust x
   where
     x = dimension (\(Just hfg) (Just hfd) -> if hfg == hfd then Just (1 + hfd) else Nothing) (Just 0) a
+
 -- dimension (\(Just hfg) (Just hfd) -> if hfg == hfd then Just (1 + hfd) else Nothing) (Just 0) (Noeud 'c' 'v' (Noeud 'c' 'v' Feuille Feuille) (Noeud 'c' 'v' Feuille Feuille))
 
 -- Q10
@@ -78,9 +79,13 @@ prop_peigneGaucheParfait xs = estParfait (peigneGauche xs)
 
 -- Q11
 parfait :: Int -> [(c, a)] -> Arbre c a
-parfait 0 _ = Feuille
-parfait _ [] = Feuille
-parfait h ((c, a) : vs) = Noeud c a (parfait (h - 1) vs) (parfait (h - 1) (tail vs))
+parfait k vs = fst (parfait' k vs)
+  where
+    parfait' 0 ls = (Feuille, ls)
+    parfait' n ls = (Noeud c v fg fd, ls'')
+      where
+        (fg, (c, v) : ls') = parfait' (n - 1) ls
+        (fd, ls'') = parfait' (n - 1) ls'
 
 -- Noeuds: 2 ^ (n + 1) - 1
 -- Feuilles: (2 ^ (n + 1) - 1) / 2
@@ -102,18 +107,18 @@ prop_aplatit :: [(c, Char)] -> Bool
 prop_aplatit xs = map snd (aplatit (parfait 4 xs)) == "abcdefghijklmno"
 
 -- Q15
-element :: Eq a => a -> Arbre c a -> Bool
+element :: (Eq a) => a -> Arbre c a -> Bool
 element _ Feuille = False
 element e (Noeud c a fg fd) = (e == a) || (element e fg || element e fd)
 
 -- Q16
-noeud :: (c -> String) -> (a -> String) -> (c,a) -> String
+noeud :: (c -> String) -> (a -> String) -> (c, a) -> String
 noeud f g (c, a) = "\t" ++ f c ++ " [color = " ++ color ++ " , fontcolor =" ++ color ++ "]\n"
   where
     color = g a
 
 -- Q17
-arcs :: Arbre c a -> [(a,a)]
+arcs :: Arbre c a -> [(a, a)]
 arcs Feuille = []
 arcs (Noeud _ _ Feuille Feuille) = []
 arcs (Noeud _ a fg@(Noeud _ a1 _ _) Feuille) = (a, a1) : arcs fg
@@ -121,7 +126,7 @@ arcs (Noeud _ a Feuille fd@(Noeud _ a2 _ _)) = (a, a2) : arcs fd
 arcs (Noeud _ a fg@(Noeud _ a1 _ _) fd@(Noeud _ a2 _ _)) = (a, a1) : (a, a2) : arcs fg ++ arcs fd
 
 -- Q18
-arc :: (a -> String) -> (a,a) -> String
+arc :: (a -> String) -> (a, a) -> String
 arc f (a, b) = "\t" ++ f a ++ " -> " ++ f b
 
 -- Q19
@@ -132,4 +137,3 @@ dotise n f g a = header ++ options ++ noeuds ++ acs ++ "}"
     options = "\tnode [fontname=\"DejaVu-Sans\", shape=circle]\n"
     noeuds = unlines (map (noeud f g) (aplatit a))
     acs = unlines (map (arc g) (arcs a))
-
