@@ -1,0 +1,76 @@
+Exercice 1:
+http => Comm entre server web et client
+
+HTTP/1.1 200 OK => Protocole HTTP a réussi
+Age => Le temps que la page est dans le cache
+Cache-Control => Le temps max qu'il rester dans le cache
+Etag => Id de la page
+Vary => Est ce qu'il accepte la compression
+X-Cache: HIT => HIT => Trouvé dans le cache =/= MISS => Pas dans le cache
+
+Cmd pour récup un ip => ping www.example.org ou dig www.example.org (mieux)
+Filtre wireshark => ip.src == <ip> || ip.dst == <ip>
+
+Exercice 2:
+Q1)
+PORT par coeur
+FTP => 21
+SSH => 22
+DNS => 43
+HTTP => 80
+HTTPS => 443
+
+La vrai addresse du site vip-... (www.univ-lille.fr => adresse virtuelle car 2 serveurs derrière)
+L'ip du DNS et du serveur
+Il a répondu en 388ms
+
+Q2)
+Méchanisme hiérarchique
+13 serveurs dans le monde [a, b, .., m]
+Chaque dns à les ip des 13 serveurs
+Demande a un serveur dit "Root" si il connait l'addr, il connait le .fr et redirige vers celui qui gère les .fr
+Celui qui gère le .fr connait univ-lille et redirige sur le serveur qui connait l'ip
+Normalement il y a tjs un point à la fin d'une url
+www.univ-lille.fr. (. => root)
+.fr => TLD (Top Level Domain) 
+
+Q3)
+21600 => durée en seconde en cache
+
+Q4)
+AUTHORITY SECTION
+
+Exercice 3:
+Q1)
+ServeurA --PETR--> ClientC <--STOR-- ServeurB
+
+Q2)
+Commandes de A vers C
+USER pierre
+PASS toto
+PORT <IP,IP,IP,IP,PORT,PORT>
+TYPE I
+RETR file
+QUIT
+
+Problèmes:
+Fichier trop lourd (pas possible de stocker sur ClientC => utiliser un pipe (pour ne pas stocker dans ClientC avant de renvoyer)
+
+Q3)
+Serveur A:
+USER pierre
+PASS toto
+PORT <IP,IP,IP,IP,PORT,PORT>
+TYPE I
+RETR file
+QUIT
+
+Serveur B:
+USER pierre
+PASS toto
+PASV
+PORT (port ServeurA)
+TYPE I
+STOR file
+QUIT
+

@@ -1,0 +1,47 @@
+Exercice 1:
+
+Équipement de même nature: Équipement de la même couche réseaux
+Câble droit: Équipements pas de même nature
+Câble croisé: Équipements de même nature
+
+1) Câble croisé
+2) Câble droit et un câble droit sinon 2 croisés fait que le croisement s'annule
+3) 2 câbles droit B1 et B4, 2 câbles droit pour R01 et B01 et un câble droit pour R3
+4) ping <ip-dest>, ping -b <ip-broadcast>
+5)
+		Concentrateur "HUB"	Commutateur "Switch"
+Physique	Étoile			Étoiles
+Logique		Bus			Étoiles
+
+Exercice 2:
+
+RFC = Request For Change
+
+1) 
+0x13E6C1 => conversion en binaire
+0001 0011 1110 0110 1100 0001 => on aplique le préfix de la classe d'IP (C = 110)
+1101 0011 1110 0110 1100 0001 => conversion en decimal (on regroupe par paquet de 8 bits)
+
+0	1	0	1	0	0	1	1
+128	64	32	16	8	4	2	1 => 211 (128 + 64 + 16 + 2 + 1)
+
+
+IP: 211.230.193.X
+Nb IP: 254 (256 - 2 (adresse du rsx .0 et adresse de broadcast .255))
+
+Règles IPV6:
+Si des 0 a gauche dans l'octet on peut supprimer
+Si il y a plusieurs paquets de 16 bits tous à 0 on peut juste mettre :: mais on peut le faire qu'une seule fois par adresse
+
+2001	:db8	:122	:300	::/56
+2001	:0db8	:0122	:0300	: 0000	:0000	:0000	:0000	::/56
+
+2) On rajoute 1 bit au masque /24 => / 25 (Si le bit ajouté est a 0 c'est un rsx si il est a 1 c'est l'autre rsx)
+Même résonnement pour les IPV6
+
+3) Il n'y a pas de passerelle entre les 2 sous réseaux
+ip addr add <addr> dev <iFace>
+ip route add default via <addr gateway>
+
+4) On vérifie avec un ping
+(IPB & Masque) == NotreIPRxs == (IPA & Masque)

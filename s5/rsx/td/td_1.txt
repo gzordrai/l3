@@ -1,0 +1,11 @@
+6) 568 / 84 = 6 
+La taille du buffer associé = 6 x (1344 (o) - 18 - 20 - 8) = 7788
+
+7) On attend 568ms le temps que le paquet ayant recu un NACK soit bien renvoyé correctement pour garder le tampon circulaire et pas casser la rotation
+
+Exercice 2:
+2) Ca sera plus long car TCP attend une réponse (ACK)
+
+A ===== SYN ====> B
+A <= SYN + ACK == B
+A ===== ACK ====> B
