@@ -25,7 +25,7 @@ import Control.Monad (ap, liftM)
 
 -- | Type des analyseurs syntaxiques (parseurs)
 type Resultat a = Maybe (a, String)
-data Parser a   = MkParser (String -> Resultat a)
+newtype Parser a   = MkParser (String -> Resultat a)
 
 -- | Exécute un analyseur syntaxique sur une entrée donnée comme une
 -- chaîne
