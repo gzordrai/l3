@@ -1,5 +1,6 @@
 import Control.Monad qualified
 import Data.Char (isAlpha, isDigit)
+import Data.Maybe (fromJust)
 import Parser
 
 type Nom = String
@@ -49,7 +50,7 @@ applique (e1 : e2 : es) = applique (App e1 e2 : es)
 
 -- Q5
 exprP :: Parser Expression
-exprP = exprParentheseeP <|> lambdaP <|> booleenP <|> varP
+exprP = exprParentheseeP <|> lambdaP <|> booleenP <|> nombreP <|> varP
 
 exprsP :: Parser Expression
 exprsP = applique <$> some exprP
@@ -58,7 +59,7 @@ exprsP = applique <$> some exprP
 lambdaP :: Parser Expression
 lambdaP = do
   espacesP
-  car '\\'
+  car '\\' <|> car 'λ'
   arg <- nomP
   espacesP
   chaine "->"
@@ -102,8 +103,35 @@ expressionP = do
 
 -- Q12
 ras :: String -> Expression
-ras = undefined
+ras s = case runParser exprsP s of
+  (Just (c, [])) -> c
+  _ -> error "Erreur d’analyse syntaxique"
 
 data ValeurA
   = VLitteralA Litteral
   | VFonctionA (ValeurA -> ValeurA)
+
+-- Q13
+-- Show ne peut pas afficher de fonction (ValeurA -> ValeurA) même si un show est défini pour VLitteralA (Litteral)
+
+-- Q14
+instance Show ValeurA where
+  show :: ValeurA -> String
+  show (VFonctionA _) = "λ"
+  show (VLitteralA (Entier x)) = show x
+  show (VLitteralA (Bool x)) = show x
+
+type Environnement a = [(Nom, a)]
+
+-- Q15
+interpreteA :: Environnement ValeurA -> Expression -> ValeurA
+interpreteA env (Lam n e) = VFonctionA (\v -> interpreteA ((n, v) : env) e)
+interpreteA env (App a b) = f (interpreteA env b)
+  where
+    VFonctionA f = interpreteA env a
+interpreteA env (Var x) = fromJust (lookup x env)
+interpreteA _ (Lit x) = VLitteralA x
+
+-- Q16 
+negA :: ValeurA
+negA = undefined
