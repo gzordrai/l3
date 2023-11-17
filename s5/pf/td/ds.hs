@@ -62,9 +62,9 @@ caissePA = Caisse <$> (carE '[' *> nomP) <*> (carE ',' *> intP <* carE ']')
 ligneP :: Parser [Maybe Caisse]
 ligneP = do
   carE '|'
-  c <- caisseP
+  c <- Just <$> caisseP <|> pure Nothing
   cs <- ligneP <|> pure []
 
   car '\n'
 
-  pure (Just c:cs)
+  pure (c:cs)
