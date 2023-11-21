@@ -74,6 +74,7 @@ exprParentheseeP = do
   car '('
   r <- exprsP
   car ')'
+  espacesP
 
   pure r
 
