@@ -1,7 +1,7 @@
 import Control.Monad qualified
 import Data.Char (isAlpha, isDigit)
 import Data.Maybe (fromJust)
-import Parser
+import Parser (Parser, car, carQuand, chaine, many, runParser, some, (<|>))
 
 type Nom = String
 
@@ -133,6 +133,39 @@ interpreteA env (App a b) = f (interpreteA env b)
 interpreteA env (Var x) = fromJust (lookup x env)
 interpreteA _ (Lit x) = VLitteralA x
 
--- Q16 
+-- Q16
 negA :: ValeurA
-negA = undefined
+negA = VFonctionA f
+  where
+    f :: ValeurA -> ValeurA
+    f (VLitteralA (Entier x)) = VLitteralA (Entier (negate x))
+
+-- Q17
+addA :: ValeurA
+addA = VFonctionA f
+  where
+    f :: ValeurA -> ValeurA
+    f (VLitteralA (Entier x)) =
+      VFonctionA
+        ( \(VLitteralA (Entier y)) ->
+            VLitteralA (Entier (x + y))
+        )
+
+-- Q18
+envA :: Environnement ValeurA
+envA =
+  [ ("neg", negA),
+    ("add", releveBinOpEntierA (+)),
+    ("soust", releveBinOpEntierA (-)),
+    ("mult", releveBinOpEntierA (*)),
+    ("quot", releveBinOpEntierA quot)
+  ]
+
+releveBinOpEntierA :: (Integer -> Integer -> Integer) -> ValeurA
+releveBinOpEntierA f = VFonctionA g
+  where
+    g (VLitteralA (Entier x)) =
+      VFonctionA
+        ( \(VLitteralA (Entier y)) ->
+            VLitteralA (Entier (f x y))
+        )
