@@ -2,6 +2,7 @@ import Control.Monad qualified
 import Data.Char (isAlpha, isDigit)
 import Data.Maybe (fromJust)
 import Parser (Parser, car, carQuand, chaine, many, runParser, some, (<|>))
+import GHC.IO.Handle (isEOF)
 
 type Nom = String
 
@@ -158,7 +159,8 @@ envA =
     ("add", releveBinOpEntierA (+)),
     ("soust", releveBinOpEntierA (-)),
     ("mult", releveBinOpEntierA (*)),
-    ("quot", releveBinOpEntierA quot)
+    ("quot", releveBinOpEntierA quot),
+    ("if", ifthenelseA)
   ]
 
 releveBinOpEntierA :: (Integer -> Integer -> Integer) -> ValeurA
@@ -169,3 +171,26 @@ releveBinOpEntierA f = VFonctionA g
         ( \(VLitteralA (Entier y)) ->
             VLitteralA (Entier (f x y))
         )
+
+-- Q19
+ifthenelseA :: ValeurA
+ifthenelseA = VFonctionA f
+  where
+    f (VLitteralA (Bool True)) = VFonctionA (VFonctionA . const)
+    f (VLitteralA (Bool False)) = VFonctionA (\_ -> VFonctionA id)
+
+-- Q20
+main :: IO ()
+main = do
+  putStr "minilang> "
+  eof <- isEOF
+
+  if eof
+    then pure ()
+    else do
+      line <- getLine
+
+      let result = interpreteA envA (ras line)
+
+      print result
+      main
