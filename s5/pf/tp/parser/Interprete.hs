@@ -129,12 +129,12 @@ type Environnement a = [(Nom, a)]
 
 -- Q15
 interpreteA :: Environnement ValeurA -> Expression -> ValeurA
+interpreteA _ (Lit x) = VLitteralA x
+interpreteA env (Var x) = fromJust (lookup x env)
 interpreteA env (Lam n e) = VFonctionA (\v -> interpreteA ((n, v) : env) e)
 interpreteA env (App a b) = f (interpreteA env b)
   where
     VFonctionA f = interpreteA env a
-interpreteA env (Var x) = fromJust (lookup x env)
-interpreteA _ (Lit x) = VLitteralA x
 
 -- Q16
 negA :: ValeurA
