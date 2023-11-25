@@ -1,9 +1,10 @@
 import Control.Monad qualified
 import Data.Char (isAlpha, isDigit)
 import Data.Maybe (fromJust)
-import Parser (Parser, car, carQuand, chaine, many, runParser, some, (<|>))
 import GHC.IO.Handle (isEOF)
+import Parser (Parser, car, carQuand, chaine, many, runParser, some, (<|>))
 
+-- Parser
 type Nom = String
 
 data Expression
@@ -109,6 +110,7 @@ ras s = case runParser exprsP s of
   (Just (c, [])) -> c
   _ -> error "Erreur d’analyse syntaxique"
 
+-- Interprete
 data ValeurA
   = VLitteralA Litteral
   | VFonctionA (ValeurA -> ValeurA)
@@ -194,3 +196,31 @@ main = do
 
       print result
       main
+
+-- Interprete with error
+data ValeurB
+  = VLitteralB Litteral
+  | VFonctionB (ValeurB -> ErrValB)
+
+type MsgErreur = String
+
+type ErrValB = Either MsgErreur ValeurB
+
+-- Q21
+instance Show ValeurB where
+  show :: ValeurB -> String
+  show (VFonctionB _) = "λ"
+  show (VLitteralB (Entier x)) = show x
+  show (VLitteralB (Bool x)) = show x
+
+-- Q22
+interpreteB :: Environnement ValeurB -> Expression -> ErrValB
+interpreteB _ (Lit x) = Right (VLitteralB x)
+interpreteB env (Var x) = maybe (Left ("La variable " ++ x ++ " n'est pas definie")) Right (lookup x env)
+interpreteB env (Lam n e) = Right (VFonctionB (\v -> interpreteB ((n, v) : env) e))
+interpreteB env (App a b) = case interpreteB env a of
+  Left err -> Left err
+  Right (VFonctionB f) -> case interpreteB env b of
+    Left err -> Left err
+    Right val -> f val
+  Right x -> Left  (show x ++ " n'est pas une fonction, application impossible")
