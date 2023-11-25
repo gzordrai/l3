@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 import Control.Monad qualified
 import Data.Char (isAlpha, isDigit)
 import Data.Maybe (fromJust)
@@ -110,7 +112,7 @@ ras s = case runParser exprsP s of
   (Just (c, [])) -> c
   _ -> error "Erreur d’analyse syntaxique"
 
--- Interprete
+-- Interpreter
 data ValeurA
   = VLitteralA Litteral
   | VFonctionA (ValeurA -> ValeurA)
@@ -197,7 +199,7 @@ main = do
       print result
       main
 
--- Interprete with error
+-- Interpreter with errors
 data ValeurB
   = VLitteralB Litteral
   | VFonctionB (ValeurB -> ErrValB)
@@ -223,4 +225,87 @@ interpreteB env (App a b) = case interpreteB env a of
   Right (VFonctionB f) -> case interpreteB env b of
     Left err -> Left err
     Right val -> f val
-  Right x -> Left  (show x ++ " n'est pas une fonction, application impossible")
+  Right x -> Left (show x ++ " n'est pas une fonction, application impossible")
+
+-- Q23
+addB :: ValeurB
+addB = VFonctionB f
+  where
+    f :: ValeurB -> ErrValB
+    f (VLitteralB (Entier x)) =
+      Right
+        ( VFonctionB
+            ( \case
+                VLitteralB (Entier y) -> Right (VLitteralB (Entier (x + y)))
+                y -> Left (show y ++ " n'est pas un entier")
+            )
+        )
+    f x = Left (show x ++ " n'est pas un entier")
+
+-- Q24
+quotB :: ValeurB
+quotB = VFonctionB f
+  where
+    f :: ValeurB -> ErrValB
+    f (VLitteralB (Entier x)) =
+      Right
+        ( VFonctionB
+            ( \case
+                VLitteralB (Entier 0) -> Left "Division par zero"
+                VLitteralB (Entier y) -> Right (VLitteralB (Entier (x `quot` y)))
+                y -> Left (show y ++ " n'est pas un entier")
+            )
+        )
+    f x = Left (show x ++ " n'est pas un entier")
+
+-- Interprete with traces
+data ValeurC
+  = VLitteralC Litteral
+  | VFonctionC (ValeurC -> OutValC)
+
+type Trace = String
+
+type OutValC = (Trace, ValeurC)
+
+-- Q25
+instance Show ValeurC where
+  show :: ValeurC -> String
+  show (VFonctionC _) = "λ"
+  show (VLitteralC (Entier x)) = show x
+  show (VLitteralC (Bool x)) = show x
+
+-- Q26
+interpreteC :: Environnement ValeurC -> Expression -> OutValC
+interpreteC _ (Lit x) = ("", VLitteralC x)
+interpreteC env (Var x) = ("", fromJust (lookup x env))
+interpreteC env (Lam n e) = (".", VFonctionC (\v -> interpreteC ((n, v) : env) e))
+interpreteC env (App a b) =
+  case interpreteC env a of
+    (t, VFonctionC f) -> (t ++ t' ++ t'', r)
+      where
+        (t', v) = interpreteC env b
+        (t'', r) = f v
+    _ -> error ""
+
+-- Q27
+pingC :: ValeurC
+pingC = VFonctionC (".p",)
+
+-- Interpreter monadic
+data ValeurM m
+  = VLitteralM Litteral
+  | VFonctionM (ValeurM m -> m (ValeurM m))
+
+-- Q28
+instance Show (ValeurM m) where
+  show :: ValeurM m -> String
+  show (VFonctionM _) = "λ"
+  show (VLitteralM (Entier x)) = show x
+  show (VLitteralM (Bool x)) = show x
+
+newtype SimpleM v = S v
+  deriving (Show)
+
+-- Q29
+interpreteSimpleM :: Environnement (ValeurM SimpleM) -> Expression -> SimpleM (ValeurM SimpleM)
+interpreteSimpleM = undefined
