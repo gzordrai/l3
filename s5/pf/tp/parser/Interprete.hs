@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-import Control.Monad qualified
+import Control.Monad (ap, liftM, void)
 import Data.Char (isAlpha, isDigit)
 import Data.Maybe (fromJust)
 import GHC.IO.Handle (isEOF)
@@ -23,7 +23,7 @@ data Litteral
 
 -- Q1
 espacesP :: Parser ()
-espacesP = Control.Monad.void (many (car ' '))
+espacesP = void (many (car ' '))
 
 -- espacesP = many (car ' ') >> pure ()
 
@@ -308,4 +308,68 @@ newtype SimpleM v = S v
 
 -- Q29
 interpreteSimpleM :: Environnement (ValeurM SimpleM) -> Expression -> SimpleM (ValeurM SimpleM)
-interpreteSimpleM = undefined
+interpreteSimpleM _ (Lit x) = S (VLitteralM x)
+interpreteSimpleM env (Var x) = S (fromJust (lookup x env))
+interpreteSimpleM env (Lam n e) = S (VFonctionM (\v -> interpreteSimpleM ((n, v) : env) e))
+interpreteSimpleM env (App a b) = f b'
+  where
+    S (VFonctionM f) = interpreteSimpleM env a
+    S b' = interpreteSimpleM env b
+
+-- Q30
+instance Functor SimpleM where
+  fmap :: (a -> b) -> SimpleM a -> SimpleM b
+  fmap = liftM
+
+instance Applicative SimpleM where
+  pure :: a -> SimpleM a
+  pure = S
+
+  (<*>) :: SimpleM (a -> b) -> SimpleM a -> SimpleM b
+  (<*>) = ap
+
+instance Monad SimpleM where
+  (>>=) :: SimpleM a -> (a -> SimpleM b) -> SimpleM b
+  (S v) >>= f = f v
+
+-- Q31
+interpreteM :: (Monad m) => Environnement (ValeurM m) -> Expression -> m (ValeurM m)
+interpreteM _ (Lit x) = pure (VLitteralM x)
+interpreteM env (Var x) = pure (fromJust (lookup x env))
+interpreteM env (Lam n e) = pure (VFonctionM (\v -> interpreteM ((n, v) : env) e))
+interpreteM env (App a b) = interpreteM env a >>= \(VFonctionM f) -> interpreteM env b >>= f
+
+type InterpreteM m = Environnement (ValeurM m) -> Expression -> m (ValeurM m)
+
+interpreteS :: InterpreteM SimpleM
+interpreteS = interpreteM
+
+-- Q32
+-- Le comportement de interpreteSimpleM et interpreteS sont les mêmes
+
+newtype TraceM v = T (Trace, v)
+  deriving (Show)
+
+-- Q33
+instance Functor TraceM where
+  fmap :: (a -> b) -> TraceM a -> TraceM b
+  fmap = liftM
+
+instance Applicative TraceM where
+  pure :: a -> TraceM a
+  pure v = T ("", v)
+
+  (<*>) :: TraceM (a -> b) -> TraceM a -> TraceM b
+  (<*>) = ap
+
+instance Monad TraceM where
+  (>>=) :: TraceM a -> (a -> TraceM b) -> TraceM b
+  (T (t, v)) >>= f =
+    let T (t', v') = f v
+     in T (t ++ t', v')
+
+interpreteMT :: InterpreteM TraceM
+interpreteMT = interpreteM
+
+pingM :: ValeurM TraceM
+pingM = VFonctionM (\v -> T ("p", v))
