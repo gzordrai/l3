@@ -1,4 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 import Control.Monad (ap, liftM, void)
 import Data.Char (isAlpha, isDigit)
@@ -41,7 +43,7 @@ varP :: Parser Expression
 varP = do
   Var <$> nomP
 
--- Q4
+-- Q4 TODO
 applique :: [Expression] -> Expression
 applique [] = undefined
 applique [e] = e
@@ -373,3 +375,116 @@ interpreteMT = interpreteM
 
 pingM :: ValeurM TraceM
 pingM = VFonctionM (\v -> T ("p", v))
+
+-- Q34 TODO
+-- Redefinir un interprete ?
+interpreteMT' :: InterpreteM TraceM
+interpreteMT' = undefined
+
+-- Q35
+-- MonadFail m => String -> m a
+
+data ErreurM v
+  = Succes v
+  | Erreur String
+  deriving (Show)
+
+-- Q36
+instance Functor ErreurM where
+  fmap :: (a -> b) -> ErreurM a -> ErreurM b
+  fmap = liftM
+
+instance Applicative ErreurM where
+  pure :: a -> ErreurM a
+  pure = Succes
+
+  (<*>) :: ErreurM (a -> b) -> ErreurM a -> ErreurM b
+  (<*>) = ap
+
+instance Monad ErreurM where
+  (>>=) :: ErreurM a -> (a -> ErreurM b) -> ErreurM b
+  Succes v >>= f = f v
+
+instance MonadFail ErreurM where
+  fail :: String -> ErreurM a
+  fail = Erreur
+
+-- Q37
+-- interpreteE :: InterpreteM ErreurM -- (MonadFail m) => InterpreteM m
+-- interpreteE _ (Lit x) = pure (VLitteralM x)
+-- interpreteE env (Var x) =
+--   case lookup x env of
+--     Just v -> pure v
+--     Nothing -> fail ("La variable " ++ x ++ " n'est pas definie")
+-- interpreteE env (Lam n e) = pure (VFonctionM (\v -> interpreteE ((n, v) : env) e))
+-- interpreteE env (App a b) =
+--   case interpreteE env a of
+--     Erreur err -> Erreur err
+--     Succes (VFonctionM f) ->
+--       case interpreteE env b of
+--         Erreur err -> Erreur err
+--         Succes v -> f v
+--     Succes x -> Erreur (show x ++ " n'est pas une fonction, application impossible")
+
+interpreteE :: (MonadFail m) => InterpreteM m
+interpreteE _ (Lit x) = return (VLitteralM x)
+interpreteE env (Var x) =
+  case lookup x env of
+    Just v -> return v
+    Nothing -> fail ("La variable " ++ x ++ " n'est pas definie")
+interpreteE env (Lam n e) = return (VFonctionM (\v -> interpreteE ((n, v) : env) e))
+interpreteE env (App a b) = do
+  f <- interpreteE env a
+
+  case f of
+    VFonctionM g -> do
+      v <- interpreteE env b
+      g v
+    _ -> fail (show f ++ " n'est pas une fonction, application impossible")
+
+class Injectable m t where
+  injecte :: t -> ValeurM m
+
+instance Injectable m Bool where
+  injecte :: Bool -> ValeurM m
+  injecte = VLitteralM . Bool
+
+-- Q38
+instance Injectable m Integer where
+  injecte :: Integer -> ValeurM m
+  injecte = VLitteralM . Entier
+
+-- Q39
+instance (MonadFail m, Injectable m t) => Injectable m (Bool -> t) where
+  injecte :: (MonadFail m, Injectable m t) => (Bool -> t) -> ValeurM m
+  injecte f = VFonctionM (\(VLitteralM (Bool x)) -> pure $ injecte (f x))
+
+instance (MonadFail m, Injectable m t) => Injectable m (Integer -> t) where
+  injecte :: (MonadFail m, Injectable m t) => (Integer -> t) -> ValeurM m
+  injecte f = VFonctionM (\(VLitteralM (Entier x)) -> pure $ injecte (f x))
+
+-- Q40 && Q42
+envM :: (MonadFail m) => Environnement (ValeurM m)
+envM =
+  [ ("add", injecte ((+) :: Integer -> Integer -> Integer)),
+    ("soust", injecte ((-) :: Integer -> Integer -> Integer)),
+    ("mult", injecte ((*) :: Integer -> Integer -> Integer)),
+    ("quot", injecte (quot :: Integer -> Integer -> Integer)),
+    ("et", injecte (&&)),
+    ("ou", injecte (||)),
+    ("non", injecte not),
+    ("if", VFonctionM (\b -> pure $ VFonctionM (pure . VFonctionM . ifthenelseM b))),
+    ("infst", injecte ((<) :: Integer -> Integer -> Bool))
+  ]
+
+-- Q41
+-- Si il n'y avait pas les \lasy l'évaluation de fib 0 (soust n 1) et fib 0 (soust n 2) se fera immédiatement,
+-- ce qui entraînera une boucle infinie car ces appels de fonction se réfèrent à eux-mêmes
+
+-- Q42
+ifthenelseM :: (MonadFail m) => ValeurM m -> ValeurM m -> ValeurM m -> m (ValeurM m)
+ifthenelseM (VLitteralM (Bool b)) v1 v2 =
+  if b
+    then pure v1
+    else pure v2
+ifthenelseM _ _ _ = fail "Le premier argument doit être un Bool"
