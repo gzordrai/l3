@@ -137,3 +137,38 @@ dotise n f g a = header ++ options ++ noeuds ++ acs ++ "}"
     options = "\tnode [fontname=\"DejaVu-Sans\", shape=circle]\n"
     noeuds = unlines (map (noeud f g) (aplatit a))
     acs = unlines (map (arc g) (arcs a))
+
+-- Q20
+-- Maybe v instead of bool ?
+elementR :: (Ord v) => v -> Arbre c v -> Bool
+elementR _ Feuille = False
+elementR e (Noeud _ v fg fd)
+  | e == v = True
+  | e < v = elementR e fg
+  | e > v = elementR e fd
+
+-- Q21
+data Couleur
+  = R
+  | N
+  deriving (Show)
+
+type ArbreRN a = Arbre Couleur a
+
+-- Q22
+equilibre :: ArbreRN a -> ArbreRN a
+equilibre Feuille = Feuille
+
+equilibre (Noeud N v fg@(Noeud R _ _ _) fd@(Noeud R _ _ _)) = Noeud N v (equilibre fg) (equilibre fd)
+equilibre (Noeud R v fg@(Noeud N _ _ _) fd@(Noeud N _ _ _)) = Noeud R v (equilibre fg) (equilibre fd)
+
+equilibre (Noeud N v (Noeud N v' fg' fd') (Noeud N v'' fg'' fd'')) = Noeud N v (equilibre (Noeud R v' fg' fd')) (equilibre (Noeud R v'' fg'' fd''))
+equilibre (Noeud R v (Noeud R v' fg' fd') (Noeud R v'' fg'' fd'')) = Noeud R v (equilibre (Noeud N v' fg' fd')) (equilibre (Noeud N v'' fg'' fd''))
+
+equilibre (Noeud R v (Noeud R v' fg' fd') fd) = Noeud R v (equilibre (Noeud N v' fg' fd')) (equilibre fd)
+equilibre (Noeud N v (Noeud N v' fg' fd') fd) = Noeud N v (equilibre (Noeud R v' fg' fd')) (equilibre fd)
+
+equilibre (Noeud R v fg (Noeud R v' fg' fd')) = Noeud R v (equilibre fg) (equilibre (Noeud N v' fg' fd'))
+equilibre (Noeud N v fg (Noeud N v' fg' fd')) = Noeud N v (equilibre fg) (equilibre (Noeud R v' fg' fd'))
+
+equilibre n@(Noeud _ _ Feuille Feuille) = n
