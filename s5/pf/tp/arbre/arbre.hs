@@ -1,3 +1,4 @@
+import Control.Concurrent (threadDelay)
 import Data.Maybe (isJust)
 import Test.QuickCheck
 
@@ -113,9 +114,9 @@ element e (Noeud c a fg fd) = (e == a) || (element e fg || element e fd)
 
 -- Q16
 noeud :: (c -> String) -> (a -> String) -> (c, a) -> String
-noeud f g (c, a) = "\t" ++ f c ++ " [color = " ++ color ++ " , fontcolor =" ++ color ++ "]\n"
+noeud f g (c, a) = "\t" ++ g a ++ " [color = " ++ color ++ " , fontcolor = " ++ color ++ "]"
   where
-    color = g a
+    color = f c
 
 -- Q17
 arcs :: Arbre c a -> [(a, a)]
@@ -131,10 +132,10 @@ arc f (a, b) = "\t" ++ f a ++ " -> " ++ f b
 
 -- Q19
 dotise :: String -> (c -> String) -> (a -> String) -> Arbre c a -> String
-dotise n f g a = header ++ options ++ noeuds ++ acs ++ "}"
+dotise n f g a = header ++ options ++ noeuds ++ "\n" ++ acs ++ "}"
   where
-    header = "digraph" ++ n ++ " {\n"
-    options = "\tnode [fontname=\"DejaVu-Sans\", shape=circle]\n"
+    header = "digraph \"" ++ n ++ "\" {\n"
+    options = "\tnode [fontname = \"DejaVu-Sans\", shape = circle]\n\n"
     noeuds = unlines (map (noeud f g) (aplatit a))
     acs = unlines (map (arc g) (arcs a))
 
@@ -158,17 +159,58 @@ type ArbreRN a = Arbre Couleur a
 -- Q22
 equilibre :: ArbreRN a -> ArbreRN a
 equilibre Feuille = Feuille
-
+equilibre n@(Noeud _ _ Feuille Feuille) = n
+equilibre (Noeud N v (Noeud _ v' fg' fd') Feuille) = Noeud N v (Noeud R v' fg' fd') Feuille
+equilibre (Noeud R v (Noeud _ v' fg' fd') Feuille) = Noeud R v (Noeud N v' fg' fd') Feuille
+equilibre (Noeud N v Feuille (Noeud _ v' fg' fd')) = Noeud N v Feuille (Noeud R v' fg' fd')
+equilibre (Noeud R v Feuille (Noeud _ v' fg' fd')) = Noeud R v Feuille (Noeud N v' fg' fd')
 equilibre (Noeud N v fg@(Noeud R _ _ _) fd@(Noeud R _ _ _)) = Noeud N v (equilibre fg) (equilibre fd)
 equilibre (Noeud R v fg@(Noeud N _ _ _) fd@(Noeud N _ _ _)) = Noeud R v (equilibre fg) (equilibre fd)
-
 equilibre (Noeud N v (Noeud N v' fg' fd') (Noeud N v'' fg'' fd'')) = Noeud N v (equilibre (Noeud R v' fg' fd')) (equilibre (Noeud R v'' fg'' fd''))
 equilibre (Noeud R v (Noeud R v' fg' fd') (Noeud R v'' fg'' fd'')) = Noeud R v (equilibre (Noeud N v' fg' fd')) (equilibre (Noeud N v'' fg'' fd''))
-
 equilibre (Noeud R v (Noeud R v' fg' fd') fd) = Noeud R v (equilibre (Noeud N v' fg' fd')) (equilibre fd)
 equilibre (Noeud N v (Noeud N v' fg' fd') fd) = Noeud N v (equilibre (Noeud R v' fg' fd')) (equilibre fd)
-
 equilibre (Noeud R v fg (Noeud R v' fg' fd')) = Noeud R v (equilibre fg) (equilibre (Noeud N v' fg' fd'))
 equilibre (Noeud N v fg (Noeud N v' fg' fd')) = Noeud N v (equilibre fg) (equilibre (Noeud R v' fg' fd'))
 
-equilibre n@(Noeud _ _ Feuille Feuille) = n
+-- Q23
+insertVal :: (Ord a) => a -> ArbreRN a -> ArbreRN a
+insertVal v Feuille = Noeud N v Feuille Feuille
+insertVal v a@(Noeud c v' fg fd)
+  | v == v' = a
+  | v > v' = equilibre (Noeud c v fg (insertVal v' fd))
+  | v < v' = equilibre (Noeud c v' (insertVal v fg) fd)
+
+-- Q24
+
+-- Q25
+(===) :: ArbreRN a -> ArbreRN a -> Bool
+(===) Feuille Feuille = True
+
+(~==) :: ArbreRN a -> ArbreRN a -> Bool
+(~==) Feuille Feuille = False
+
+-- Q26
+arbresDot :: [Char] -> [String]
+arbresDot cs = f cs Feuille
+  where
+    colorToString :: Couleur -> String
+    colorToString N = "Black"
+    colorToString R = "Red"
+
+    valToString :: Char -> String
+    valToString v = [v]
+
+    f :: [Char] -> ArbreRN Char -> [String]
+    f [] _ = []
+    f (c : cs') a = dotise "arbre" colorToString valToString arbre : f cs' arbre
+      where
+        arbre = insertVal c a
+
+main :: IO ()
+main = mapM_ ecrit arbres
+  where
+    ecrit a = do
+      writeFile "arbre.dot" a
+      threadDelay 1000000
+    arbres = arbresDot "gcfxieqzrujlmdoywnbakhpvst"
