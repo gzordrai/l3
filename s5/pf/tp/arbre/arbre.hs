@@ -152,43 +152,47 @@ elementR e (Noeud _ v fg fd)
 data Couleur
   = R
   | N
-  deriving (Show)
+  deriving (Show, Eq)
 
 type ArbreRN a = Arbre Couleur a
 
 -- Q22
 equilibre :: ArbreRN a -> ArbreRN a
 equilibre Feuille = Feuille
-equilibre n@(Noeud _ _ Feuille Feuille) = n
-equilibre (Noeud N v (Noeud _ v' fg' fd') Feuille) = Noeud N v (Noeud R v' fg' fd') Feuille
-equilibre (Noeud R v (Noeud _ v' fg' fd') Feuille) = Noeud R v (Noeud N v' fg' fd') Feuille
-equilibre (Noeud N v Feuille (Noeud _ v' fg' fd')) = Noeud N v Feuille (Noeud R v' fg' fd')
-equilibre (Noeud R v Feuille (Noeud _ v' fg' fd')) = Noeud R v Feuille (Noeud N v' fg' fd')
-equilibre (Noeud N v fg@(Noeud R _ _ _) fd@(Noeud R _ _ _)) = Noeud N v (equilibre fg) (equilibre fd)
-equilibre (Noeud R v fg@(Noeud N _ _ _) fd@(Noeud N _ _ _)) = Noeud R v (equilibre fg) (equilibre fd)
-equilibre (Noeud N v (Noeud N v' fg' fd') (Noeud N v'' fg'' fd'')) = Noeud N v (equilibre (Noeud R v' fg' fd')) (equilibre (Noeud R v'' fg'' fd''))
-equilibre (Noeud R v (Noeud R v' fg' fd') (Noeud R v'' fg'' fd'')) = Noeud R v (equilibre (Noeud N v' fg' fd')) (equilibre (Noeud N v'' fg'' fd''))
-equilibre (Noeud R v (Noeud R v' fg' fd') fd) = Noeud R v (equilibre (Noeud N v' fg' fd')) (equilibre fd)
-equilibre (Noeud N v (Noeud N v' fg' fd') fd) = Noeud N v (equilibre (Noeud R v' fg' fd')) (equilibre fd)
-equilibre (Noeud R v fg (Noeud R v' fg' fd')) = Noeud R v (equilibre fg) (equilibre (Noeud N v' fg' fd'))
-equilibre (Noeud N v fg (Noeud N v' fg' fd')) = Noeud N v (equilibre fg) (equilibre (Noeud R v' fg' fd'))
+equilibre (Noeud _ z (Noeud _ y (Noeud _ x xg xd) yd) zd) = Noeud R y (equilibre (Noeud N x xg xd)) (equilibre (Noeud N z yd zd))
+equilibre (Noeud _ z (Noeud _ x xg (Noeud _ y yg yd)) zd) = Noeud R y (equilibre (Noeud N x xg yg)) (equilibre (Noeud N z yd zd))
+equilibre (Noeud _ x xg (Noeud _ z (Noeud _ y yg yd) zd)) = Noeud R y (equilibre (Noeud N x xg yg)) (equilibre (Noeud N z yd zd))
+equilibre (Noeud _ x xg (Noeud _ y yg (Noeud _ z zg zd))) = Noeud R y (equilibre (Noeud N x xg yg)) (equilibre (Noeud N z zg zd))
+equilibre (Noeud c v fg fd) = Noeud c v (equilibre fg) (equilibre fd)
+
+equilibre' :: Couleur -> a -> ArbreRN a -> ArbreRN a -> ArbreRN a
+equilibre' c v (Noeud c' v' fg' fd') (Noeud c'' v'' fg'' fd'') = undefined
 
 -- Q23
 insertVal :: (Ord a) => a -> ArbreRN a -> ArbreRN a
 insertVal v Feuille = Noeud N v Feuille Feuille
-insertVal v a@(Noeud c v' fg fd)
-  | v == v' = a
-  | v > v' = equilibre (Noeud c v fg (insertVal v' fd))
-  | v < v' = equilibre (Noeud c v' (insertVal v fg) fd)
+insertVal v a = Noeud N val fg fd
+  where
+  f :: (Ord a) => a -> ArbreRN a -> ArbreRN a
+  f v' a'@(Noeud c v'' fg fd)
+    | v' == v'' = a'
+    | v' > v'' = Noeud c v'' fg (insertVal v' fd)
+    | v' < v'' = Noeud c v'' (insertVal v' fg) fd
+
+  (Noeud _ val fg fd) = equilibre (f v a)
 
 -- Q24
 
 -- Q25
-(===) :: ArbreRN a -> ArbreRN a -> Bool
-(===) Feuille Feuille = True
+(====) :: (Eq a) => ArbreRN a -> ArbreRN a -> Bool
+(====) Feuille Feuille = True
+(====) (Noeud c v fg fd) (Noeud c' v' fg' fd') = c == c' && v == v' && fg ==== fg' && fd ==== fd'
+(====) _ _ = False
 
-(~==) :: ArbreRN a -> ArbreRN a -> Bool
-(~==) Feuille Feuille = False
+(~===) :: (Eq a) => ArbreRN a -> ArbreRN a -> Bool
+(~===) Feuille Feuille = False
+(~===) (Noeud c v fg fd) (Noeud c' v' fg' fd') = c /= c' || v /= v' || fg ~=== fg' || fd ~=== fd'
+(~===) _ _ = True
 
 -- Q26
 arbresDot :: [Char] -> [String]
