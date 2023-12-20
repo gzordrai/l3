@@ -280,10 +280,10 @@ instance Show ValeurC where
 interpreteC :: Environnement ValeurC -> Expression -> OutValC
 interpreteC _ (Lit x) = ("", VLitteralC x)
 interpreteC env (Var x) = ("", fromJust (lookup x env))
-interpreteC env (Lam n e) = (".", VFonctionC (\v -> interpreteC ((n, v) : env) e))
+interpreteC env (Lam n e) = ("", VFonctionC (\v -> interpreteC ((n, v) : env) e))
 interpreteC env (App a b) =
   case interpreteC env a of
-    (t, VFonctionC f) -> (t ++ t' ++ t'', r)
+    (t, VFonctionC f) -> ('.' : t ++ t' ++ t'', r)
       where
         (t', v) = interpreteC env b
         (t'', r) = f v
@@ -291,7 +291,7 @@ interpreteC env (App a b) =
 
 -- Q27
 pingC :: ValeurC
-pingC = VFonctionC (".p",)
+pingC = VFonctionC ("p",)
 
 -- Interpreter monadic
 data ValeurM m
