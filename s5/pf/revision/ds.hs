@@ -124,3 +124,58 @@ pilesCaisse = undefined
 --   where
 --     f :: [[Maybe Caisse]] -> [[Maybe Caisse]]
 --     f (c : cs) = if pileCorrecte c then [] else []
+
+-- Q2
+data Noeud
+  = Rep String [Noeud]
+  | Fichier String Int
+  deriving (Show)
+
+type Fichiers = [Noeud]
+
+foldN :: (String -> [a] -> a) -> (String -> Int -> a) -> Noeud -> a
+foldN rep fich (Rep n lf) = rep n (map (foldN rep fich) lf)
+foldN _ fich (Fichier n t) = fich n t
+
+-- Q2.1 15m
+tailleN :: Noeud -> Int
+tailleN = foldN (\_ fs -> somme fs) (\_ t -> t)
+  where
+    somme :: (Num a) => [a] -> a
+    somme [] = 0
+    somme (x : xs) = x + somme xs
+
+-- Q2.2 10m
+tailleF :: Fichiers -> [(String, Int)]
+tailleF = map f
+  where
+    f :: Noeud -> (String, Int)
+    f (Rep n fs) = (n, sum (map tailleN fs))
+    f (Fichier n t) = (n, t)
+
+-- Q2.3 20m
+fichiersN :: Noeud -> [[String]]
+fichiersN = foldN (\nom chemins -> map (nom :) (f chemins)) (\nom _ -> [[nom]])
+  where
+    f :: [[a]] -> [a]
+    f [] = []
+    f (x : xs) = x ++ f xs
+
+-- Q2.4 3m
+fichiersF :: Fichiers -> [[String]]
+fichiersF fs = concat f
+  where
+    f = map fichiersN fs
+
+-- Q2.5 8m
+descendreRep :: String -> Fichiers -> Maybe Fichiers
+descendreRep _ [] = Nothing
+descendreRep n ((Rep n' fs') : fs) =
+  if n == n'
+    then Just fs'
+    else descendreRep n fs
+descendreRep n (_ : fs) = descendreRep n fs
+
+-- Q2.6 -- 10m
+cd :: [String] -> Fichiers -> Maybe Fichiers
+cd ps fs = foldl (\(Just fs') chemin -> descendreRep chemin fs') (Just fs) ps
