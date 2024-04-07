@@ -1,0 +1,45 @@
+from sly import Parser
+from ExoboolLexer import ExoboolLexer
+
+
+class Exercie2Parser(Parser):
+    tokens = ExoboolLexer.tokens
+    start = 'e'
+    i = 0
+    # E -> e OR t | t
+
+    @_('e OR t', 't')
+    def e(self, p):
+        print("enter in e")
+        self.i += 1
+        print(self.i)
+        return None
+    # T -> t && f | f
+
+    @_('t AND f', 'f')
+    def t(self, p):
+        print("enter in t")
+        self.i += 1
+        print(self.i)
+        return None
+    # F -> !F | ( E ) | c | i
+
+    @_('NOT f', 'OPEN_BRACKET e CLOSE_BRACKET', 'CONSTANT', 'IDENT')
+    def f(self, p):
+        print("enter in f")
+        self.i += 1
+        print(self.i)
+        return None
+
+
+if __name__ == '__main__':
+    lexer = ExoboolLexer()
+    parser = ex2Parser()
+    while True:
+        try:
+            print(parser.i)
+            text = input("input: ")
+            result = parser.parse(lexer.tokenize(text))
+            print(result)
+        except EOFError:
+            break

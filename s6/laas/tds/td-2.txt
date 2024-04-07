@@ -1,0 +1,11 @@
+Exercice 1:
+Σ = { a, b }
+V = { S }
+R = { S -> aS, S -> b }
+
+Exercice 2:
+La grammaire est ambiguë
+ 
+S -> aSbS -> abS -> abaSbS -> ababS -> abab
+S -> aSbS -> abSaSbS -> abaSbS -> ababS -> abab
+

@@ -1,0 +1,16 @@
+Exercice 1:
+Question 1:
+
+premier(REL) = { id, σ }    suivant(REL) = { #,  }
+premier(S) = { ⋈ }
+premier(PRIM) = { id, σ }
+premier(COND) = { ( }
+premier(L) = { id }
+
+Question 2:
+suivants(REL) = { ) } u suivants(S)
+suivants(S) = suivants(REL)
+suivants(PRIM)  = premiers(S) u suivants(REL)
+				= { ,
+suivants(COND) = { ( }
+suivants(L) = { ) }

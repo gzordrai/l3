@@ -1,0 +1,99 @@
+Exercice 1:
+Q1)
+L(G) => langage engendré par la grammaire G
+L^(G) => le langage étendu engendré par G
+L^¹(G) mots entendus obtenu en faisant une seul dérivation
+
+L^¹(G) = { eS, T }
+L¹(G) = ∅
+
+L^²(G) = { eeS, eT, FcT, F }
+L²(G) = ∅
+
+L^³(G) = { eeeS, eeT, eFcT, eF, ccT, aSbct, FcFcT, FeF, c, aSb }
+L³(G) = { c }
+
+L⁴(G) = { ec }
+
+Q2)
+S -> eS -> eT -> eF -> eaSb -> eaTb -> eaFb -> eacb
+S -> T -> F -> aSb -> aeSb -> aeTb -> aeFb -> aecb
+
+Exercice 2:
+Q1)
+L^⁰ = { S }
+L^¹(G) = { aSb, ε }
+L^²(G) = { aaSbb, ab }
+L^³(G) = { aaaSbbb, aabb }
+L^n(G) = { a^n S b^n, a^(n - 1) b^(n - 1)}
+
+Q2)
+Supposons que L^n(G) = { a^n S b^n, a^(n - 1) b^(n - 1)}
+exprimons L^n+1(G) = { (a^n)a S b(b^n), (a^n)ε(b^n) }
+
+Q3)
+L^n(G) = L^^n(G) U  Σ^*
+= U (n >= 1) { a^(n-1)b^(n-1) }
+= U (n >= 0) { (a^n)(b^n) }
+= { (a^n)(b^n) }
+
+Exercice 3:
+Q1)
+C'est une grammaire régulière
+
+Q2)
+A -> aS -> abA -> abbS -> abbaS -> abbaε -> abba
+
+Q3)
+
+
+Q4)
+L^¹(G) = { aS, bS, ε }
+L¹ (G) = { ε }
+
+L^² (G) = { aaA, ab, baA, bbA }
+L² (G) = ∅
+
+L^³ (G) = { aaaS, aabS, aa, abaS, abbS, ab, baaS, babS, ba, bbaS, bbbS, bb }
+L³ (G) = { aa, ab, ba, bb }
+
+Q5)
+Ils se terminent tous par A et sont composés d'un nombre pair de lettres de l'alphabet et contiennent tous 1 seule variable
+
+L^^(2n) (G) = { (a + b) ^ (2n) A }
+L^^(2n + 1) (G) = { (a + b) ^ (2n + 1) S, (a + b) ^ (2n) }
+
+L²n (G) = ∅
+L²n+1 (G) = { (a + b) ^ 2n }
+
+Q6)
+Il ne reste qu'à faire une preuve par récurrence sur n pour prouver que Pn est vraie pour tout n
+Pn : l^²n = { (a + b) ^ (2n) A } et L^²n+1 = { (a + b) ^ (2n + 1) S, (a + b) ^ (2n) }
+
+Initialisation: on doit vérirfier P0 comme L^⁰ (G) = { A }
+Ca marche pour la 1ere partie et on déjà calculé L¹(G) = ... 
+
+Exercice 4:
+TODO
+
+Exercice 5:
+Σ = { 'a', ..., 'z', ',' , '{', '}', '[', ']' }
+V = { cmd, id , suite-de-lettres, variable, parametres, options, suite-parametre, suite-non-vide-parametre, suite-options, suite-non-vide-options, option }
+R = {
+	cmd -> id variable parametres options
+	id -> lettre suite-de-lettres
+	lettre -> a | b | ... | z
+	suite-de-lettres -> ε | lettre suite-de-lettres
+	variable -> ε | id
+	parametres -> ε | { suite-parametres }
+	suite-parametres -> ε | suite-non-vide-parametres
+	suite-non-vide-parametres -> lettre | lettre, suite-non-vide-parametres
+	options -> ε | [ suite-options ]
+	suitre-options -> ε | suite-non-vide-options
+	suite-non-vide-options -> option | option, suite-non-vide-options
+	option -> lettre | { suite-parametres } 
+}
+
+
+Exercice 6:
+TODO

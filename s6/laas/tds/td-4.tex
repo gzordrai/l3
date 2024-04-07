@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{tabularx}
+
+\begin{document}
+% Exercice 2
+% \newline
+% \begin{tabularx}{15cm}{|c|p{4cm}|X|X|X|X|}
+%     \hline
+%      & REL & S & PRIM & COND & L \\
+%     \hline
+%     premiers & $\{id, \sigma\}$ & $\{\bowtie\}$ & $\{id, \sigma\}$ & $\{ ( \}$ & $\{id\}$ \\
+%     \hline
+%     suivants & $\{), \#\}$ & $\{), \#\}$ & $\{\bowtie, \#\}$ & $\{ ( \}$ & $\{)\}$ \\
+%     \hline
+% \end{tabularx}
+
+\begin{tabularx}{15cm}{|c|p{4cm}|X|X|X|X|}
+    \hline
+     & REL & S & PRIM & COND & L \\
+    \hline
+    id & REL $\rightarrow$ PRIM S & & PRIM $\rightarrow$ id & & L $\rightarrow$ id id L \\
+    \hline
+    $\sigma$ & REL $\rightarrow$ PRIM S & & PRIM $\rightarrow$ $\sigma$ COND REL & & \\
+    \hline
+    ( & & & & & \\
+    \hline
+    ) & & S $\rightarrow$ $\epsilon$ & & & L $\rightarrow$ $\epsilon$ \\
+    \hline
+    = & & & & & \\
+    \hline
+    $\bowtie$ & & S $\rightarrow$ $\bowtie REL$ & & & \\
+    \hline
+    \# & & S $\rightarrow$ $\epsilon$ & & & \\
+    \hline
+\end{tabularx}
+\end{document}

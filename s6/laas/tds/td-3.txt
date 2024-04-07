@@ -1,0 +1,31 @@
+Exercice 3:
+Question 1:
+A = { c, g, f, '(', ')', ',' }
+S = { A }
+R = A -> c
+	A -> g(A)
+	A -> f(A, A)
+
+Question 2:
+A = { c, g, f, '(', ')', ',' }
+S = { P, I } // P (axiom) pour pair et I pour impair
+R = P -> g(P) | f(I, I) | f(P, P)
+	I -> c | g(I) | f(I, P) | f(P, I)
+
+Question 3:
+A = { c, g, f, '(', ')', ',' }
+S = { P, I } // P (axiom) pour pair et I pour impair
+R = P -> g(I) | f(P, I)
+	I -> c | g(P) | f(I, I) | f(P, P)
+
+Question 4:
+premier (A) = { c, g, f }
+
+Question 5:
+Elle n'est pas LL1 car il y a une conflit avec P -> f(I, I) et P -> f(P, P)
+
+Question 6:
+A = { c, g, f, '(', ')', ',' }
+S = { P, I } // P (axiom) pour pair et I pour impair
+R = P -> g(I) | f(P, I)
+	I -> c | g(P) | f(I, I) | f(P, P)

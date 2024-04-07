@@ -19,11 +19,11 @@ if __name__ == "__main__":
         print(input, "=>", parser.parse(input, lexer))
 
     print("\nExercice 2.1:")
-    parser = ExoboolVars()
     inputs = ["a && b && (TRUE || a || c)", "a && b && (TRUE || a || c) && (TRUE || a || c)",
               "a && b && (TRUE || a || c) && (TRUE || a || c) && (TRUE || a || c)"]
 
     for input in inputs:
+        parser = ExoboolVars()
         print(input, "=>", parser.parse(input, lexer))
 
     print("\nExercice 2.2:")

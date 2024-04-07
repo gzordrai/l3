@@ -1,4 +1,3 @@
-from ExoboolLexer import ExoboolLexer
 from ard import Ard
 
 
@@ -17,11 +16,7 @@ class ExoboolVars(Ard):
             self._T()
             self._Ep()
 
-            # Remise a 0 pour pouvoir tester plusieurs expressions dans la boucles du main
-            tmp = self.indents
-            self.indents = 0
-
-            return tmp
+            return self.indents
 
         else:
             raise SyntaxError("NO_RULE", "E", self._current)
@@ -102,13 +97,3 @@ class ExoboolVars(Ard):
 
             case _:
                 raise SyntaxError("NO_RULE", "F", self._current)
-
-
-if __name__ == "__main__":
-    parser: ExoboolVars = ExoboolVars()
-    lexer: ExoboolLexer = ExoboolLexer()
-
-    try:
-        print(parser.parse("a && b && (TRUE || a || c)", lexer))
-    except SyntaxError as e:
-        print(e)
