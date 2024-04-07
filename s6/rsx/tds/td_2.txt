@@ -1,0 +1,51 @@
+Exercice 1:
+cf carnet
+
+Exercice 2:
+1)
+			1 2 3 4 5 6 7 8 9 10 11 12
+
+E => 45		0 0 0 1 1 0 0 1 1 0  0  0
+H => 48		1 1 0 0 1 0 0 0 0 1  0  1
+L => 4C		0 1 0 1 1 0 0 0 1 1  0  0
+O => 4F		1 0 0 0 1 0 0 0 1 1  0  1
+
+2)
+dHmin = 3
+2 detecteurs
+1 correcteur
+
+Exercice 3:
+1)
+x⁵ + x² + 1
+
+x⁵ x⁴ x³ x² x¹ x⁰
+1  0  0  1  0  1
+Attention si x⁵ alors on ajoute 5 zéro à la fin
+
+0011 1101 1001 0110 00000
+  10 0101 
+  .1 1000 1
+  .1 0010 1
+   . 1010 00
+     1001 01
+     .011 0101
+       100 101
+       .10 0000
+        10 0101
+        .0 0101 110
+            100 101
+            .01 0110 0
+              1 0010 1
+              . 0100 1
+              
+              1 0010 0
+              1 0010 1
+              . 0000 10 (CRC)
+CRC => 00010
+			  
+2)
+Oui il provient du polynôme car obtient 00000 à la fin du calcul du CRC 
+
+3)
+
